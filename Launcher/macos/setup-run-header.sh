@@ -14,7 +14,8 @@ if [[ ! -x "$bundle/wiicompiled-setup" ]]; then
     staging=$(mktemp -d "$setup_root/.unpack.XXXXXX")
     trap 'rm -rf "$staging"' EXIT
     payload_line=$(awk '/^__WIICOMPILED_PAYLOAD__$/ { print NR + 1; exit }' "$0")
-    tail -n +"$payload_line" "$0" | /usr/bin/tar -xzf - -C "$staging"
+    tail -n +"$payload_line" "$0" | /usr/bin/tar -xzf - -C "$staging" \
+        || { printf 'WiiCompiled setup: could not unpack %s; the download may be incomplete\n' "$0" >&2; exit 1; }
     # Not safe against two first runs racing; frontends already run setup operations one at a time.
     rm -rf "$bundle"
     mv "$staging" "$bundle"
